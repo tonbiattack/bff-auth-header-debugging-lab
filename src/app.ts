@@ -6,21 +6,13 @@ export function createBffApp(downstreamBaseUrl: string) {
 
   app.get("/api/dashboard", async (request, response) => {
     const authorization = request.header("authorization");
+    const authHeaders: Record<string, string> = authorization ? { authorization } : {};
+    console.info(`[bff] 受信した認証情報の有無: ${authorization !== undefined}`);
 
     try {
       const [profileResponse, tasksResponse] = await Promise.all([
-        fetch(`${downstreamBaseUrl}/profile`, {
-          headers: {
-            // BUG: Node.jsの受信ヘッダーには小文字のキーでアクセスする必要がある。
-            Authorization: request.headers.Authorization as string | undefined
-          }
-        }),
-        fetch(`${downstreamBaseUrl}/tasks`, {
-          headers: {
-            // BUG: 同じ誤りにより、タスク取得にも認証情報が渡らない。
-            Authorization: request.headers.Authorization as string | undefined
-          }
-        })
+        fetch(`${downstreamBaseUrl}/profile`, { headers: authHeaders }),
+        fetch(`${downstreamBaseUrl}/tasks`, { headers: authHeaders })
       ]);
 
       if (!profileResponse.ok || !tasksResponse.ok) {
