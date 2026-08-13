@@ -1,0 +1,25 @@
+{
+  "name": "bff-auth-header-debugging-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BFFの認証ヘッダー転送不備を再現・調査・修正するTypeScriptデバッグ練習教材",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.2",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}
