@@ -79,6 +79,20 @@ Node.jsのHTTPメッセージでは、受信ヘッダーのキーは小文字化
 
 この教材は、本物の認証プロバイダ、JWTの検証、トークン更新、権限設計を実装しません。`Bearer user-token` は完全にローカルな固定値であり、外部サービスや資格情報は使用しません。
 
+## 追加演習：CORSとタイムアウト
+
+ブランチ `exercise/cors-timeout-debugging` は、BFFに特有の二つの境界障害を追加した修正済み教材です。CORS演習では、認証ヘッダーを含むクロスオリジン要求のプリフライトに対して、許可Origin、`GET`、`Authorization` を明示的に返します。`Authorization` はワイルドカードで許可できず、明示的な列挙が必要です。[2] タイムアウト演習では、下流の `/tasks` が75ms以内に応答しない場合に、BFFが待ち続けず `504` を返します。`AbortSignal.timeout()` は指定ミリ秒で中断されるシグナルを返します。[3]
+
+```bash
+git switch exercise/cors-timeout-debugging
+npm test
+npm run typecheck
+```
+
+不具合を再現するには、修正前コミット `f38b5d5` をチェックアウトして `npm test` を実行します。`CORS` では `200 expected 204`、タイムアウトでは `200 expected 504` の失敗を確認できます。詳細は [追加演習のデバッグ記録](docs/cors-timeout-debugging-record.md) を参照してください。
+
 ## References
 
 [1]: https://nodejs.org/api/http.html "Node.js HTTP documentation"
+[2]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS "MDN: Cross-Origin Resource Sharing (CORS)"
+[3]: https://nodejs.org/api/globals.html "Node.js global objects"

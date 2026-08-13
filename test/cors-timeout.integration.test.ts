@@ -26,6 +26,17 @@ describe("BFFのクロスオリジンとタイムアウトの契約", () => {
     expect(response.headers["access-control-allow-headers"]).toContain("Authorization");
   });
 
+  it("許可していないOriginにはCORS許可ヘッダーを返さない", async () => {
+    const app = createBffApp("http://127.0.0.1:1");
+
+    const response = await request(app)
+      .options("/api/dashboard")
+      .set("Origin", "https://untrusted.example.test")
+      .set("Access-Control-Request-Method", "GET");
+
+    expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
   it("下流APIが期限を超えても完了を待たず、504を返す", async () => {
     downstream = await startDownstreamStub({
       responseDelaysMs: { "/tasks": 150 }
