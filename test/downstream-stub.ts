@@ -1,5 +1,9 @@
 import http from "node:http";
 
+export type DownstreamStubOptions = {
+  responseDelaysMs?: Partial<Record<"/profile" | "/tasks", number>>;
+};
+
 export type DownstreamStub = {
   baseUrl: string;
   receivedAuthorizations: Array<string | undefined>;
@@ -8,10 +12,16 @@ export type DownstreamStub = {
 
 const expectedAuthorization = "Bearer user-token";
 
-export async function startDownstreamStub(): Promise<DownstreamStub> {
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function startDownstreamStub(
+  options: DownstreamStubOptions = {}
+): Promise<DownstreamStub> {
   const receivedAuthorizations: Array<string | undefined> = [];
 
-  const server = http.createServer((request, response) => {
+  const server = http.createServer(async (request, response) => {
     const authorization = request.headers.authorization;
     receivedAuthorizations.push(authorization);
     console.info(
@@ -22,6 +32,13 @@ export async function startDownstreamStub(): Promise<DownstreamStub> {
       response.writeHead(401, { "content-type": "application/json" });
       response.end(JSON.stringify({ message: "認証情報が不足しています" }));
       return;
+    }
+
+    const requestPath = request.url as "/profile" | "/tasks";
+    const responseDelayMs = options.responseDelaysMs?.[requestPath] ?? 0;
+    if (responseDelayMs > 0) {
+      console.info(`[downstream-stub] ${requestPath} を ${responseDelayMs}ms 遅延させます`);
+      await wait(responseDelayMs);
     }
 
     response.setHeader("content-type", "application/json");
